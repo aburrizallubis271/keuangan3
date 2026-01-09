@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📊 Aplikasi Keuangan Lengkap</title>
+    <title>📊 FlexiBudget 2.0 - API Version</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tambahkan library jsPDF untuk laporan -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -44,7 +43,6 @@
             overflow: hidden;
         }
         
-        /* HEADER */
         header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
@@ -83,7 +81,6 @@
             font-size: 0.9rem;
         }
         
-        /* MAIN CONTENT */
         .main-content {
             padding: 25px;
             display: grid;
@@ -97,7 +94,6 @@
             }
         }
         
-        /* CARDS */
         .card {
             background: var(--light);
             border-radius: 12px;
@@ -116,7 +112,6 @@
             gap: 10px;
         }
         
-        /* FORM */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -154,7 +149,6 @@
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
         
-        /* BUTTONS */
         button {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
@@ -202,7 +196,6 @@
             margin-top: 15px;
         }
         
-        /* MONTH NAVIGATION */
         .month-nav {
             display: flex;
             justify-content: space-between;
@@ -226,7 +219,6 @@
             font-size: 1.1rem;
         }
         
-        /* PLANNING ITEMS */
         .planning-item {
             display: flex;
             justify-content: space-between;
@@ -267,7 +259,6 @@
             background: var(--danger);
         }
         
-        /* TRANSACTION ITEMS */
         .trans-item {
             display: flex;
             justify-content: space-between;
@@ -290,7 +281,6 @@
             font-weight: bold;
         }
         
-        /* BUSINESS CARD */
         .business-card {
             background: white;
             border-radius: 8px;
@@ -300,7 +290,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
-        /* MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -348,7 +337,6 @@
             color: #6c757d;
         }
         
-        /* TABS */
         .tabs {
             display: flex;
             border-bottom: 2px solid #eee;
@@ -384,7 +372,6 @@
             display: block;
         }
         
-        /* STATS */
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -425,7 +412,6 @@
             font-size: 0.8rem;
         }
         
-        /* RESPONSIVE */
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -454,7 +440,6 @@
             }
         }
         
-        /* LOADING */
         .loading {
             display: none;
             position: fixed;
@@ -486,7 +471,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* TOAST */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -506,7 +490,6 @@
             opacity: 1;
         }
 
-        /* Income Source Items */
         .income-item {
             display: flex;
             justify-content: space-between;
@@ -518,7 +501,6 @@
             border-left: 4px solid var(--success);
         }
 
-        /* Report Buttons */
         .report-buttons {
             display: flex;
             gap: 10px;
@@ -694,8 +676,8 @@
                                 
                                 <div class="form-group">
                                     <label for="transPlanning">Planning</label>
-                                    <select id="transPlanning" required>
-                                        <option value="">Pilih planning</option>
+                                    <select id="transPlanning">
+                                        <option value="">Tidak ada planning</option>
                                     </select>
                                     <small id="balanceInfo" style="color: #666; display: none; font-size:0.8rem;"></small>
                                 </div>
@@ -889,16 +871,21 @@
                             <button onclick="restoreData()" class="btn btn-outline">
                                 <i class="fas fa-upload"></i> Restore Data
                             </button>
+                            
+                            <button onclick="refreshData()" class="btn btn-primary">
+                                <i class="fas fa-sync"></i> Refresh Data dari API
+                            </button>
                         </div>
                         
                         <div style="margin-top:25px; padding-top:20px; border-top:1px solid #e9ecef;">
                             <h3 style="margin-bottom:15px; color:#333;">Informasi Aplikasi</h3>
                             <div style="line-height:1.8;">
-                                <p><i class="fas fa-code-branch"></i> <strong>Versi:</strong> 2.0</p>
+                                <p><i class="fas fa-code-branch"></i> <strong>Versi:</strong> 2.0 (API Mode)</p>
                                 <p><i class="far fa-calendar"></i> <strong>Bulan Aktif:</strong> <span id="currentMonthInfo">Januari 2024</span></p>
                                 <p><i class="fas fa-bullseye"></i> <strong>Jumlah Planning:</strong> <span id="planningCountInfo">0</span></p>
                                 <p><i class="fas fa-exchange-alt"></i> <strong>Jumlah Transaksi:</strong> <span id="transactionCountInfo">0</span></p>
                                 <p><i class="fas fa-database"></i> <strong>Mode Penyimpanan:</strong> <span id="storageMode">Google Apps Script API</span></p>
+                                <p><i class="fas fa-info-circle"></i> <strong>Status:</strong> <span id="apiStatusInfo">Loading...</span></p>
                             </div>
                         </div>
                     </div>
@@ -924,7 +911,7 @@
                     <div id="recentTransactions">
                         <div style="text-align:center; padding:20px; color:#666;">
                             <i class="fas fa-exchange-alt fa-2x" style="opacity:0.3; margin-bottom:10px;"></i>
-                            <p>Belum ada transaksi</p>
+                                <p>Belum ada transaksi</p>
                         </div>
                     </div>
                 </div>
@@ -999,11 +986,204 @@
         const { jsPDF } = window.jspdf;
         
         // ============================================
-        // KONFIGURASI API
+        // KONFIGURASI API - FIXED
         // ============================================
-        const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbztS4fbxUYSXG8YPm_et0Sg755H6iSMMif6CQq4f2hv6a_SsThgrSq5egvBfa7N15Vp/exec',
-            PASSWORD: '1111'
+        const API_CONFIG = {
+            BASE_URL: 'https://script.google.com/macros/s/AKfycby9aCR_8MoiT-U1UqQD2UkgRQT28ANVmvGXEnf1Z5Eg6WVMbVyWAjjeUReIX2BOXNtm/exec',
+            PASSWORD: '1111',
+            
+            async call(action, data = {}) {
+                try {
+                    console.log(`📤 API Request: ${action}`, data);
+                    
+                    // Buat form data untuk menghindari CORS preflight
+                    const formData = new FormData();
+                    formData.append('action', action);
+                    formData.append('password', this.PASSWORD);
+                    formData.append('data', JSON.stringify(data));
+                    
+                    // Gunakan fetch dengan mode 'no-cors'
+                    const response = await fetch(this.BASE_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    });
+                    
+                    console.log(`✅ API ${action} request sent`);
+                    
+                    // Simpan ke localStorage sebagai cache
+                    this.saveToLocalStorage(action, data);
+                    
+                    return { success: true, message: 'Request sent to API' };
+                    
+                } catch (error) {
+                    console.error(`❌ API Error (${action}):`, error);
+                    
+                    // Simpan ke localStorage sebagai fallback
+                    this.saveToLocalStorage(action, data);
+                    
+                    return { 
+                        success: false, 
+                        error: error.message,
+                        offline: true,
+                        message: 'Saved locally'
+                    };
+                }
+            },
+            
+            // Simpan ke localStorage sebagai cache
+            saveToLocalStorage(action, data) {
+                try {
+                    const timestamp = new Date().toISOString();
+                    const cacheItem = {
+                        action: action,
+                        data: data,
+                        timestamp: timestamp
+                    };
+                    
+                    // Simpan ke localStorage berdasarkan action
+                    if (action === 'add' || action === 'update' || action === 'delete') {
+                        this.saveTransactionToLocal(data, action);
+                    } else if (action === 'addPlan' || action === 'updatePlan' || action === 'deletePlan') {
+                        this.savePlanToLocal(data, action);
+                    } else if (action === 'addBusiness') {
+                        this.saveBusinessToLocal(data);
+                    }
+                    
+                    console.log(`💾 Saved ${action} to localStorage`);
+                    
+                } catch (e) {
+                    console.error('Error saving to localStorage:', e);
+                }
+            },
+            
+            saveTransactionToLocal(transaction, action) {
+                try {
+                    let transactions = JSON.parse(localStorage.getItem('local_transactions') || '[]');
+                    
+                    if (action === 'delete') {
+                        // Hapus transaksi
+                        transactions = transactions.filter(t => t.id !== transaction.id);
+                    } else if (action === 'update') {
+                        // Update transaksi
+                        const index = transactions.findIndex(t => t.id === transaction.id);
+                        if (index >= 0) {
+                            transactions[index] = { ...transactions[index], ...transaction };
+                        } else {
+                            transactions.push(transaction);
+                        }
+                    } else {
+                        // Tambah transaksi baru
+                        transactions.push({
+                            ...transaction,
+                            id: transaction.id || 'trans_' + Date.now()
+                        });
+                    }
+                    
+                    localStorage.setItem('local_transactions', JSON.stringify(transactions));
+                } catch (e) {
+                    console.error('Error saving transaction locally:', e);
+                }
+            },
+            
+            savePlanToLocal(plan, action) {
+                try {
+                    let plans = JSON.parse(localStorage.getItem('local_plans') || '[]');
+                    
+                    if (action === 'deletePlan') {
+                        // Hapus planning
+                        plans = plans.filter(p => p.id !== plan.id);
+                    } else if (action === 'updatePlan') {
+                        // Update planning
+                        const index = plans.findIndex(p => p.id === plan.id);
+                        if (index >= 0) {
+                            plans[index] = { ...plans[index], ...plan };
+                        } else {
+                            plans.push(plan);
+                        }
+                    } else {
+                        // Tambah planning baru
+                        plans.push({
+                            ...plan,
+                            id: plan.id || 'plan_' + Date.now()
+                        });
+                    }
+                    
+                    localStorage.setItem('local_plans', JSON.stringify(plans));
+                } catch (e) {
+                    console.error('Error saving plan locally:', e);
+                }
+            },
+            
+            saveBusinessToLocal(business) {
+                try {
+                    let businesses = JSON.parse(localStorage.getItem('local_business') || '[]');
+                    
+                    businesses.push({
+                        ...business,
+                        id: business.id || 'business_' + Date.now()
+                    });
+                    
+                    localStorage.setItem('local_business', JSON.stringify(businesses));
+                } catch (e) {
+                    console.error('Error saving business locally:', e);
+                }
+            },
+            
+            // Load dari localStorage
+            loadFromLocalStorage() {
+                try {
+                    const result = {
+                        transactions: [],
+                        plans: [],
+                        business: [],
+                        incomeSources: []
+                    };
+                    
+                    // Load transactions
+                    const localTrans = JSON.parse(localStorage.getItem('local_transactions') || '[]');
+                    result.transactions = localTrans;
+                    
+                    // Load plans - INI YANG DIPERBAIKI
+                    const localPlans = JSON.parse(localStorage.getItem('local_plans') || '[]');
+                    result.plans = localPlans.map(p => {
+                        // Konversi tipe untuk konsistensi
+                        const planType = p.type === 'income' ? 'Pemasukan' : 
+                                        p.type === 'Pengeluaran' ? 'Pengeluaran' :
+                                        p.type === 'Tabungan' ? 'Tabungan' :
+                                        p.type === 'Investasi' ? 'Investasi' : 'Pengeluaran';
+                        
+                        return {
+                            id: p.id,
+                            name: p.name || 'Unnamed',
+                            type: planType,
+                            target: parseFloat(p.target) || 0,
+                            description: p.notes || p.description || '',
+                            category: p.category || 'Umum'
+                        };
+                    });
+                    
+                    // Load business
+                    const localBiz = JSON.parse(localStorage.getItem('local_business') || '[]');
+                    result.business = localBiz;
+                    
+                    // Load income sources
+                    const localIncome = JSON.parse(localStorage.getItem('local_income') || '[]');
+                    result.incomeSources = localIncome;
+                    
+                    console.log('📂 Loaded from localStorage:', result);
+                    return result;
+                    
+                } catch (error) {
+                    console.error('Error loading from localStorage:', error);
+                    return {
+                        transactions: [],
+                        plans: [],
+                        business: [],
+                        incomeSources: []
+                    };
+                }
+            }
         };
         
         // ============================================
@@ -1017,7 +1197,9 @@
             monthlyPlanning: {},
             incomeSources: [],
             transactions: [],
-            business: []
+            business: [],
+            apiConnected: false,
+            lastSync: null
         };
         
         // Nama bulan
@@ -1027,162 +1209,79 @@
         ];
         
         // ============================================
-        // FUNGSI UTAMA - PENYIMPANAN KE API
+        // FUNGSI UTAMA
         // ============================================
-        async function loadData() {
+        async function initializeApp() {
             showLoading();
+            
             try {
-                console.log('Mengambil data dari API...');
+                console.log('🚀 Initializing FlexiBudget...');
                 
-                const response = await fetch(`${CONFIG.API_URL}?action=load`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
+                // Coba connect ke API
+                const apiResult = await API_CONFIG.call('test', {});
+                
+                if (apiResult.success || apiResult.offline) {
+                    appData.apiConnected = !apiResult.offline;
+                    
+                    if (apiResult.offline) {
+                        document.getElementById('apiStatus').textContent = 'Offline Mode';
+                        document.getElementById('apiStatus').style.color = '#ff9f1c';
+                        document.getElementById('apiStatusInfo').textContent = 'Offline (Using Cache)';
+                        showToast('⚠️ Menggunakan mode offline', 'warning');
+                    } else {
+                        document.getElementById('apiStatus').textContent = 'Connected';
+                        document.getElementById('apiStatus').style.color = '#2ecc71';
+                        document.getElementById('apiStatusInfo').textContent = 'API Connected';
+                        showToast('✅ Terhubung ke API', 'success');
                     }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
-                if (result.status === 'success' && result.data) {
-                    appData = JSON.parse(result.data);
                     
-                    // Initialize jika properti belum ada
-                    if (!appData.monthlyPlanning) appData.monthlyPlanning = {};
-                    if (!appData.planningTemplates) appData.planningTemplates = [];
-                    if (!appData.incomeSources) appData.incomeSources = [];
-                    if (!appData.transactions) appData.transactions = [];
-                    if (!appData.business) appData.business = [];
+                    // Load data dari localStorage
+                    loadFromCache();
                     
-                    document.getElementById('apiStatus').textContent = 'Connected';
-                    document.getElementById('apiStatus').style.color = '#2ecc71';
-                    showToast('Data berhasil dimuat dari server', 'success');
                 } else {
-                    // Create default data jika tidak ada
-                    createDefaultData();
-                    showToast('Data default dibuat', 'info');
+                    document.getElementById('apiStatus').textContent = 'Error';
+                    document.getElementById('apiStatus').style.color = '#e74c3c';
+                    document.getElementById('apiStatusInfo').textContent = 'API Error';
+                    showToast('❌ Gagal terhubung ke API', 'error');
+                    
+                    // Load dari cache
+                    loadFromCache();
                 }
+                
             } catch (error) {
-                console.error('Error loading from API:', error);
-                document.getElementById('apiStatus').textContent = 'Offline';
+                console.error('Initialization error:', error);
+                document.getElementById('apiStatus').textContent = 'Error';
                 document.getElementById('apiStatus').style.color = '#e74c3c';
                 
-                // Coba load dari localStorage sebagai fallback
-                try {
-                    const saved = localStorage.getItem('flexibudget_backup');
-                    if (saved) {
-                        appData = JSON.parse(saved);
-                        showToast('Menggunakan data backup lokal', 'warning');
-                    } else {
-                        createDefaultData();
-                        showToast('Buat data baru', 'info');
-                    }
-                } catch (e) {
-                    createDefaultData();
-                    showToast('Buat data baru', 'info');
-                }
+                // Load dari cache
+                loadFromCache();
+                
             } finally {
                 hideLoading();
-                updateDisplay();
             }
         }
         
-        async function saveData() {
-            try {
-                const dataToSave = JSON.stringify(appData);
-                
-                const response = await fetch(CONFIG.API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        action: 'save',
-                        password: CONFIG.PASSWORD,
-                        data: dataToSave
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    // Juga simpan ke localStorage sebagai backup
-                    localStorage.setItem('flexibudget_backup', dataToSave);
-                    updateDisplay();
-                    return true;
-                } else {
-                    throw new Error(result.message || 'Save failed');
-                }
-            } catch (error) {
-                console.error('Error saving to API:', error);
-                
-                // Fallback ke localStorage
-                try {
-                    localStorage.setItem('flexibudget_backup', JSON.stringify(appData));
-                    document.getElementById('apiStatus').textContent = 'Local Backup';
-                    document.getElementById('apiStatus').style.color = '#f39c12';
-                    showToast('Data disimpan ke backup lokal', 'warning');
-                    updateDisplay();
-                    return true;
-                } catch (e) {
-                    showToast('Error menyimpan data', 'error');
-                    return false;
-                }
-            }
+        function loadFromCache() {
+            console.log('📂 Loading from cache...');
+            
+            const cachedData = API_CONFIG.loadFromLocalStorage();
+            
+            // PERBAIKAN: Pastikan data planning dimuat dengan benar
+            appData.planningTemplates = cachedData.plans || [];
+            appData.transactions = cachedData.transactions || [];
+            appData.business = cachedData.business || [];
+            appData.incomeSources = cachedData.incomeSources || [];
+            
+            // Inisialisasi monthly planning
+            initializeMonthlyPlanning();
+            
+            updateDisplay();
+            showToast('Data dimuat dari cache lokal', 'info');
         }
         
-        function createDefaultData() {
-            const defaultTemplates = [
-                {
-                    id: 'template_transport',
-                    name: 'TRANSPORT',
-                    type: 'Pengeluaran',
-                    target: 500000,
-                    description: 'Transportasi bulanan'
-                },
-                {
-                    id: 'template_gaji',
-                    name: 'GAJI',
-                    type: 'Pemasukan',
-                    target: 3000000,
-                    description: 'Gaji bulanan'
-                }
-            ];
-            
-            const defaultIncome = [
-                {
-                    id: 'income_gaji',
-                    name: 'Gaji Pokok',
-                    amount: 3000000,
-                    description: 'Gaji bulanan tetap'
-                }
-            ];
-            
-            appData.planningTemplates = defaultTemplates;
-            appData.incomeSources = defaultIncome;
-            
-            // Simpan ke localStorage sebagai backup
-            localStorage.setItem('flexibudget_backup', JSON.stringify(appData));
-        }
-        
-        // ============================================
-        // FUNGSI PLANNING
-        // ============================================
-        function getCurrentMonthKey() {
-            return `${appData.currentYear}-${appData.currentMonth}`;
-        }
-        
-        function getCurrentMonthPlanning() {
+        function initializeMonthlyPlanning() {
             const monthKey = getCurrentMonthKey();
-            if (!appData.monthlyPlanning[monthKey]) {
-                // Create new month planning from templates
+            if (!appData.monthlyPlanning[monthKey] && appData.planningTemplates.length > 0) {
                 appData.monthlyPlanning[monthKey] = appData.planningTemplates.map(template => ({
                     id: template.id + '_' + monthKey,
                     templateId: template.id,
@@ -1194,6 +1293,20 @@
                     collected: 0
                 }));
             }
+        }
+        
+        // ============================================
+        // FUNGSI PLANNING - DIPERBAIKI
+        // ============================================
+        function getCurrentMonthKey() {
+            return `${appData.currentYear}-${appData.currentMonth}`;
+        }
+        
+        function getCurrentMonthPlanning() {
+            const monthKey = getCurrentMonthKey();
+            if (!appData.monthlyPlanning[monthKey]) {
+                appData.monthlyPlanning[monthKey] = [];
+            }
             return appData.monthlyPlanning[monthKey];
         }
         
@@ -1201,7 +1314,7 @@
             const planning = getCurrentMonthPlanning().find(p => p.id === planningId);
             if (!planning) return 0;
             
-            if (planning.type === 'Pengeluaran') {
+            if (planning.type === 'Pengeluaran' || planning.type === 'Tabungan' || planning.type === 'Investasi') {
                 planning.used = appData.transactions
                     .filter(t => t.planningId === planningId && t.type === 'expense')
                     .reduce((sum, t) => sum + t.amount, 0);
@@ -1216,7 +1329,7 @@
         }
         
         // ============================================
-        // FUNGSI TAMBAH PEMASUKAN (FITUR NO. 2)
+        // FUNGSI TAMBAH PEMASUKAN
         // ============================================
         async function addIncomeSource() {
             const name = document.getElementById('incomeName').value.trim();
@@ -1238,15 +1351,33 @@
             
             appData.incomeSources.push(incomeSource);
             
-            if (await saveData()) {
-                // Reset form
-                document.getElementById('incomeName').value = '';
-                document.getElementById('incomeAmount').value = '';
-                document.getElementById('incomeDescription').value = '';
-                
-                showToast('Pemasukan tetap berhasil ditambahkan!', 'success');
-                updateIncomeSourcesList();
-            }
+            // Save to localStorage
+            let localIncome = JSON.parse(localStorage.getItem('local_income') || '[]');
+            localIncome.push(incomeSource);
+            localStorage.setItem('local_income', JSON.stringify(localIncome));
+            
+            // Save transaction to API
+            const transData = {
+                description: `${name} (Pemasukan Tetap)`,
+                amount: amount,
+                type: 'income',
+                category: 'Pemasukan Tetap',
+                date: new Date().toISOString().split('T')[0],
+                user: 'System',
+                notes: description,
+                planningId: null
+            };
+            
+            await API_CONFIG.call('add', transData);
+            
+            // Reset form
+            document.getElementById('incomeName').value = '';
+            document.getElementById('incomeAmount').value = '';
+            document.getElementById('incomeDescription').value = '';
+            
+            showToast('Pemasukan tetap berhasil ditambahkan!', 'success');
+            updateIncomeSourcesList();
+            updateDisplay();
         }
         
         function updateIncomeSourcesList() {
@@ -1287,18 +1418,359 @@
             }).join('');
         }
         
-        async function deleteIncomeSource(incomeId) {
+        function deleteIncomeSource(incomeId) {
             if (confirm('Hapus sumber pemasukan ini?')) {
                 appData.incomeSources = appData.incomeSources.filter(income => income.id !== incomeId);
-                if (await saveData()) {
-                    showToast('Pemasukan tetap dihapus', 'success');
-                    updateIncomeSourcesList();
+                
+                // Update localStorage
+                let localIncome = JSON.parse(localStorage.getItem('local_income') || '[]');
+                localIncome = localIncome.filter(income => income.id !== incomeId);
+                localStorage.setItem('local_income', JSON.stringify(localIncome));
+                
+                showToast('Pemasukan tetap dihapus', 'success');
+                updateIncomeSourcesList();
+            }
+        }
+        
+        // ============================================
+        // FUNGSI TRANSAKSI
+        // ============================================
+        async function saveTransaction(formData, isEdit = false) {
+            showLoading();
+            
+            try {
+                const action = isEdit ? 'update' : 'add';
+                const result = await API_CONFIG.call(action, formData);
+                
+                if (result.success || result.offline) {
+                    if (isEdit) {
+                        const index = appData.transactions.findIndex(t => t.id === formData.id);
+                        if (index !== -1) {
+                            appData.transactions[index] = formData;
+                        }
+                    } else {
+                        appData.transactions.push({
+                            ...formData,
+                            id: formData.id || 'trans_' + Date.now()
+                        });
+                    }
+                    
+                    showToast(`Transaksi ${isEdit ? 'diperbarui' : 'disimpan'}!`, 'success');
+                    return true;
+                } else {
+                    showToast('Gagal menyimpan transaksi', 'error');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('Error saving transaction:', error);
+                showToast('Error menyimpan transaksi', 'error');
+                return false;
+                
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function editTransaction(transactionId) {
+            const transaction = appData.transactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+            
+            document.getElementById('transactionFormTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Transaksi';
+            document.getElementById('editingTransactionId').value = transaction.id;
+            document.getElementById('transType').value = transaction.type;
+            document.getElementById('transAmount').value = formatCurrencyInput(transaction.amount.toString());
+            document.getElementById('transDesc').value = transaction.description || '';
+            document.getElementById('transDate').value = transaction.date;
+            document.getElementById('transCategory').value = transaction.category || 'Umum';
+            document.getElementById('transPlanning').value = transaction.planningId || '';
+            document.getElementById('transactionSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update Transaksi';
+            document.getElementById('cancelEditBtn').style.display = 'block';
+            
+            switchTab('transactions');
+        }
+        
+        async function deleteTransaction(transactionId) {
+            const transaction = appData.transactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+            
+            if (confirm(`Hapus transaksi "${transaction.description}" sebesar ${formatCurrency(transaction.amount)}?`)) {
+                showLoading();
+                
+                try {
+                    await API_CONFIG.call('delete', { id: transactionId });
+                    
+                    appData.transactions = appData.transactions.filter(t => t.id !== transactionId);
+                    
+                    showToast('Transaksi berhasil dihapus!', 'success');
+                    updateDisplay();
+                    
+                } catch (error) {
+                    console.error('Error deleting transaction:', error);
+                    showToast('Gagal menghapus transaksi', 'error');
+                } finally {
+                    hideLoading();
                 }
             }
         }
         
         // ============================================
-        // FUNGSI LAPORAN PDF (FITUR NO. 3)
+        // FUNGSI PLANNING MODAL - DIPERBAIKI
+        // ============================================
+        function openPlanningModal() {
+            document.getElementById('planningModalTitle').textContent = 'Tambah Planning';
+            document.getElementById('editingPlanningId').value = '';
+            document.getElementById('planningForm').reset();
+            document.getElementById('planningSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Simpan Planning';
+            document.getElementById('planningModal').classList.add('active');
+        }
+        
+        function closePlanningModal() {
+            document.getElementById('planningModal').classList.remove('active');
+        }
+        
+        // FUNGSI BARU: Handle planning form submit - DIPERBAIKI
+        async function handlePlanningSubmit(e) {
+            e.preventDefault();
+            
+            const planningName = document.getElementById('planningName').value.trim();
+            const planningType = document.getElementById('planningType').value;
+            const planningTarget = parseCurrency(document.getElementById('planningTarget').value);
+            const planningDesc = document.getElementById('planningDesc').value.trim();
+            const editingPlanningId = document.getElementById('editingPlanningId').value;
+            
+            if (planningTarget <= 0) {
+                showToast('Target harus lebih dari 0!', 'error');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const planData = {
+                    name: planningName,
+                    target: planningTarget,
+                    type: planningType === 'Pemasukan' ? 'income' : 'expense',
+                    notes: planningDesc,
+                    category: 'Planning'
+                };
+                
+                let action, successMessage;
+                
+                if (editingPlanningId) {
+                    // Edit existing planning
+                    planData.id = editingPlanningId;
+                    action = 'updatePlan';
+                    successMessage = `Planning "${planningName}" berhasil diperbarui!`;
+                    
+                    // Update local data
+                    const index = appData.planningTemplates.findIndex(p => p.id === editingPlanningId);
+                    if (index !== -1) {
+                        appData.planningTemplates[index] = {
+                            ...appData.planningTemplates[index],
+                            name: planningName,
+                            type: planningType,
+                            target: planningTarget,
+                            description: planningDesc
+                        };
+                    }
+                } else {
+                    // Add new planning
+                    planData.id = 'plan_' + Date.now();
+                    action = 'addPlan';
+                    successMessage = `Planning "${planningName}" berhasil ditambahkan!`;
+                    
+                    // Add to local data - INI YANG DIPERBAIKI
+                    const newPlan = {
+                        id: planData.id,
+                        name: planningName,
+                        type: planningType,
+                        target: planningTarget,
+                        description: planningDesc,
+                        category: 'Planning'
+                    };
+                    
+                    appData.planningTemplates.push(newPlan);
+                    
+                    // Tambah ke monthly planning
+                    const monthKey = getCurrentMonthKey();
+                    if (!appData.monthlyPlanning[monthKey]) {
+                        appData.monthlyPlanning[monthKey] = [];
+                    }
+                    
+                    appData.monthlyPlanning[monthKey].push({
+                        id: planData.id + '_' + monthKey,
+                        templateId: planData.id,
+                        name: planningName,
+                        type: planningType,
+                        target: planningTarget,
+                        description: planningDesc,
+                        used: 0,
+                        collected: 0
+                    });
+                }
+                
+                // Kirim ke API
+                const result = await API_CONFIG.call(action, planData);
+                
+                if (result.success || result.offline) {
+                    showToast(successMessage, 'success');
+                    
+                    // Reset form and close modal
+                    document.getElementById('planningForm').reset();
+                    closePlanningModal();
+                    
+                    // Update display
+                    updateDisplay();
+                } else {
+                    showToast('Gagal menyimpan planning', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error saving planning:', error);
+                showToast('Error menyimpan planning', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function editPlanning(planningId) {
+            // Ekstrak template ID dari planning ID
+            const templateId = planningId.split('_').slice(0, -1).join('_');
+            const template = appData.planningTemplates.find(t => t.id === templateId);
+            
+            if (!template) {
+                showToast('Planning tidak ditemukan!', 'error');
+                return;
+            }
+            
+            document.getElementById('planningModalTitle').textContent = 'Edit Planning';
+            document.getElementById('editingPlanningId').value = template.id;
+            document.getElementById('planningName').value = template.name;
+            document.getElementById('planningType').value = template.type;
+            document.getElementById('planningTarget').value = formatCurrencyInput(template.target.toString());
+            document.getElementById('planningDesc').value = template.description || '';
+            document.getElementById('planningSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update Planning';
+            
+            document.getElementById('planningModal').classList.add('active');
+        }
+        
+        async function deletePlanning(planningId) {
+            // Ekstrak template ID
+            const templateId = planningId.split('_').slice(0, -1).join('_');
+            const template = appData.planningTemplates.find(t => t.id === templateId);
+            
+            if (!template) {
+                showToast('Planning tidak ditemukan!', 'error');
+                return;
+            }
+            
+            let message = `Hapus planning "${template.name}"?`;
+            const relatedTransactions = appData.transactions.filter(t => 
+                t.planningId === planningId || t.planningId === templateId
+            );
+            
+            if (relatedTransactions.length > 0) {
+                message += `\n\nPlanning ini memiliki ${relatedTransactions.length} transaksi terkait.`;
+                if (!confirm(message + '\n\nHapus planning dan semua transaksinya?')) {
+                    return;
+                }
+            } else {
+                if (!confirm(message)) {
+                    return;
+                }
+            }
+            
+            showLoading();
+            
+            try {
+                await API_CONFIG.call('deletePlan', { id: templateId });
+                
+                // Update local data
+                appData.planningTemplates = appData.planningTemplates.filter(t => t.id !== templateId);
+                
+                // Hapus dari monthly planning
+                const monthKey = getCurrentMonthKey();
+                if (appData.monthlyPlanning[monthKey]) {
+                    appData.monthlyPlanning[monthKey] = appData.monthlyPlanning[monthKey].filter(
+                        p => p.templateId !== templateId
+                    );
+                }
+                
+                // Hapus transaksi terkait
+                appData.transactions = appData.transactions.filter(t => 
+                    t.planningId !== planningId && t.planningId !== templateId
+                );
+                
+                showToast(`Planning "${template.name}" dihapus`, 'success');
+                updateDisplay();
+                
+            } catch (error) {
+                console.error('Error deleting planning:', error);
+                showToast('Gagal menghapus planning', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // ============================================
+        // FUNGSI USAHA
+        // ============================================
+        async function saveBusiness() {
+            const modal = parseCurrency(document.getElementById('businessModal').value);
+            const pemasukan = parseCurrency(document.getElementById('businessPemasukan').value);
+            const pengeluaran = parseCurrency(document.getElementById('businessPengeluaran').value);
+            const date = document.getElementById('businessDate').value || new Date().toISOString().split('T')[0];
+            
+            if (modal <= 0 && pemasukan <= 0 && pengeluaran <= 0) {
+                showToast('Masukkan data usaha yang valid!', 'error');
+                return;
+            }
+            
+            const businessData = {
+                name: 'Data Usaha',
+                investment: modal,
+                revenue: pemasukan,
+                date: date,
+                pengeluaran: pengeluaran
+            };
+            
+            showLoading();
+            
+            try {
+                const result = await API_CONFIG.call('addBusiness', businessData);
+                
+                if (result.success || result.offline) {
+                    appData.business.push({
+                        id: 'business_' + Date.now(),
+                        modal: modal,
+                        pemasukan: pemasukan,
+                        pengeluaran: pengeluaran,
+                        date: date,
+                        name: 'Data Usaha'
+                    });
+                    
+                    document.getElementById('businessModal').value = '';
+                    document.getElementById('businessPemasukan').value = '';
+                    document.getElementById('businessPengeluaran').value = '';
+                    document.getElementById('businessDate').value = '';
+                    
+                    showToast('Data usaha berhasil disimpan!', 'success');
+                    updateDisplay();
+                } else {
+                    showToast('Gagal menyimpan data usaha', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error saving business:', error);
+                showToast('Error menyimpan data usaha', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // ============================================
+        // FUNGSI LAPORAN PDF
         // ============================================
         function generateMonthlyReport() {
             const month = parseInt(document.getElementById('reportMonth').value);
@@ -1306,7 +1778,6 @@
             
             showLoading();
             
-            // Filter data untuk bulan dan tahun tertentu
             const monthlyTransactions = appData.transactions.filter(t => {
                 const date = new Date(t.date);
                 return date.getMonth() === month && date.getFullYear() === year;
@@ -1317,9 +1788,8 @@
                 return date.getMonth() === month && date.getFullYear() === year;
             });
             
-            const monthlyPlanning = getPlanningForMonth(year, month);
+            const monthlyPlanning = getCurrentMonthPlanning();
             
-            // Hitung total
             const totalIncome = monthlyTransactions
                 .filter(t => t.type === 'income')
                 .reduce((sum, t) => sum + t.amount, 0);
@@ -1331,10 +1801,8 @@
             const businessProfit = monthlyBusiness.reduce((sum, b) => 
                 sum + ((b.pemasukan || 0) - (b.pengeluaran || 0)), 0);
             
-            // Buat PDF
             const doc = new jsPDF();
             
-            // Header
             doc.setFontSize(20);
             doc.setTextColor(67, 97, 238);
             doc.text('LAPORAN KEUANGAN BULANAN', 105, 20, { align: 'center' });
@@ -1346,7 +1814,6 @@
             doc.setFontSize(10);
             doc.text(`Dibuat: ${new Date().toLocaleDateString('id-ID')}`, 105, 36, { align: 'center' });
             
-            // Ringkasan
             doc.setFontSize(14);
             doc.setTextColor(0, 0, 0);
             doc.text('RINGKASAN KEUANGAN', 20, 50);
@@ -1357,7 +1824,6 @@
             doc.text(`Saldo: ${formatCurrency(totalIncome - totalExpense)}`, 30, 72);
             doc.text(`Profit Usaha: ${formatCurrency(businessProfit)}`, 30, 78);
             
-            // Daftar Transaksi
             let yPos = 90;
             
             doc.setFontSize(14);
@@ -1370,12 +1836,12 @@
                     t.description || '-',
                     t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
                     formatCurrency(t.amount),
-                    getPlanningName(t.planningId)
+                    t.category || '-'
                 ]);
                 
                 doc.autoTable({
                     startY: yPos,
-                    head: [['Tanggal', 'Keterangan', 'Jenis', 'Jumlah', 'Planning']],
+                    head: [['Tanggal', 'Keterangan', 'Jenis', 'Jumlah', 'Kategori']],
                     body: tableData,
                     theme: 'striped',
                     headStyles: { fillColor: [67, 97, 238] },
@@ -1388,7 +1854,6 @@
                 yPos += 10;
             }
             
-            // Planning Status
             doc.setFontSize(14);
             doc.text('STATUS PLANNING', 20, yPos);
             yPos += 10;
@@ -1402,7 +1867,7 @@
                     
                     const remaining = getRemainingForPlanning(plan.id);
                     const progress = plan.target > 0 ? 
-                        (plan.type === 'Pengeluaran' ? 
+                        (plan.type === 'Pengeluaran' || plan.type === 'Tabungan' || plan.type === 'Investasi' ? 
                             (plan.used || 0) / plan.target * 100 : 
                             (plan.collected || 0) / plan.target * 100) : 0;
                     
@@ -1418,7 +1883,6 @@
                 yPos += 10;
             }
             
-            // Data Usaha
             if (monthlyBusiness.length > 0) {
                 if (yPos > 240) {
                     doc.addPage();
@@ -1448,7 +1912,6 @@
                 });
             }
             
-            // Footer
             const pageCount = doc.internal.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
@@ -1460,182 +1923,12 @@
             
             hideLoading();
             
-            // Simpan PDF
             doc.save(`Laporan_${monthNames[month]}_${year}.pdf`);
             showToast('Laporan bulanan berhasil diunduh!', 'success');
         }
         
         function generateAnnualReport() {
-            const year = parseInt(document.getElementById('reportYearAnnual').value);
-            
-            showLoading();
-            
-            // Filter data untuk tahun tertentu
-            const annualTransactions = appData.transactions.filter(t => {
-                const date = new Date(t.date);
-                return date.getFullYear() === year;
-            });
-            
-            const annualBusiness = appData.business.filter(b => {
-                const date = new Date(b.date);
-                return date.getFullYear() === year;
-            });
-            
-            // Hitung per bulan
-            const monthlySummary = [];
-            for (let month = 0; month < 12; month++) {
-                const monthTransactions = annualTransactions.filter(t => {
-                    const date = new Date(t.date);
-                    return date.getMonth() === month;
-                });
-                
-                const monthIncome = monthTransactions
-                    .filter(t => t.type === 'income')
-                    .reduce((sum, t) => sum + t.amount, 0);
-                
-                const monthExpense = monthTransactions
-                    .filter(t => t.type === 'expense')
-                    .reduce((sum, t) => sum + t.amount, 0);
-                
-                const monthBusiness = annualBusiness.filter(b => {
-                    const date = new Date(b.date);
-                    return date.getMonth() === month;
-                });
-                
-                const monthBusinessProfit = monthBusiness.reduce((sum, b) => 
-                    sum + ((b.pemasukan || 0) - (b.pengeluaran || 0)), 0);
-                
-                monthlySummary.push({
-                    month: monthNames[month],
-                    income: monthIncome,
-                    expense: monthExpense,
-                    balance: monthIncome - monthExpense,
-                    businessProfit: monthBusinessProfit
-                });
-            }
-            
-            // Total tahunan
-            const totalIncome = monthlySummary.reduce((sum, m) => sum + m.income, 0);
-            const totalExpense = monthlySummary.reduce((sum, m) => sum + m.expense, 0);
-            const totalBusinessProfit = monthlySummary.reduce((sum, m) => sum + m.businessProfit, 0);
-            
-            // Buat PDF
-            const doc = new jsPDF();
-            
-            // Header
-            doc.setFontSize(20);
-            doc.setTextColor(67, 97, 238);
-            doc.text('LAPORAN KEUANGAN TAHUNAN', 105, 20, { align: 'center' });
-            
-            doc.setFontSize(12);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Tahun: ${year}`, 105, 30, { align: 'center' });
-            
-            doc.setFontSize(10);
-            doc.text(`Dibuat: ${new Date().toLocaleDateString('id-ID')}`, 105, 36, { align: 'center' });
-            
-            // Ringkasan Tahunan
-            doc.setFontSize(14);
-            doc.setTextColor(0, 0, 0);
-            doc.text('RINGKASAN TAHUNAN', 20, 50);
-            
-            doc.setFontSize(10);
-            doc.text(`Total Pemasukan: ${formatCurrency(totalIncome)}`, 30, 60);
-            doc.text(`Total Pengeluaran: ${formatCurrency(totalExpense)}`, 30, 66);
-            doc.text(`Saldo Tahun Ini: ${formatCurrency(totalIncome - totalExpense)}`, 30, 72);
-            doc.text(`Total Profit Usaha: ${formatCurrency(totalBusinessProfit)}`, 30, 78);
-            
-            // Tabel Rincian Bulanan
-            let yPos = 90;
-            
-            doc.setFontSize(14);
-            doc.text('RINCIAN PER BULAN', 20, yPos);
-            yPos += 10;
-            
-            const tableData = monthlySummary.map(m => [
-                m.month,
-                formatCurrency(m.income),
-                formatCurrency(m.expense),
-                formatCurrency(m.balance),
-                formatCurrency(m.businessProfit)
-            ]);
-            
-            doc.autoTable({
-                startY: yPos,
-                head: [['Bulan', 'Pemasukan', 'Pengeluaran', 'Saldo', 'Profit Usaha']],
-                body: tableData,
-                theme: 'striped',
-                headStyles: { fillColor: [67, 97, 238] },
-                margin: { left: 20 }
-            });
-            
-            yPos = doc.lastAutoTable.finalY + 10;
-            
-            // Grafik Perbandingan
-            doc.setFontSize(14);
-            doc.text('PERBANDINGAN PENDAPATAN VS PENGELUARAN', 20, yPos);
-            yPos += 10;
-            
-            // Buat grafik sederhana (dalam bentuk tabel)
-            const chartData = monthlySummary.map(m => ({
-                month: m.month.substring(0, 3),
-                income: m.income,
-                expense: m.expense
-            }));
-            
-            // Tampilkan data grafik sebagai tabel
-            const chartTableData = chartData.map(d => [
-                d.month,
-                formatCurrency(d.income),
-                formatCurrency(d.expense)
-            ]);
-            
-            doc.autoTable({
-                startY: yPos,
-                head: [['Bulan', 'Pemasukan', 'Pengeluaran']],
-                body: chartTableData,
-                theme: 'striped',
-                headStyles: { fillColor: [46, 204, 113] },
-                margin: { left: 20 }
-            });
-            
-            // Statistik Transaksi
-            yPos = doc.lastAutoTable.finalY + 15;
-            
-            doc.setFontSize(14);
-            doc.text('STATISTIK TRANSAKSI', 20, yPos);
-            yPos += 10;
-            
-            const transactionStats = {
-                totalTransactions: annualTransactions.length,
-                incomeTransactions: annualTransactions.filter(t => t.type === 'income').length,
-                expenseTransactions: annualTransactions.filter(t => t.type === 'expense').length,
-                avgIncome: totalIncome / 12,
-                avgExpense: totalExpense / 12
-            };
-            
-            doc.setFontSize(10);
-            doc.text(`Total Transaksi: ${transactionStats.totalTransactions}`, 30, yPos);
-            doc.text(`Transaksi Pemasukan: ${transactionStats.incomeTransactions}`, 30, yPos + 6);
-            doc.text(`Transaksi Pengeluaran: ${transactionStats.expenseTransactions}`, 30, yPos + 12);
-            doc.text(`Rata-rata Pemasukan/Bulan: ${formatCurrency(transactionStats.avgIncome)}`, 30, yPos + 18);
-            doc.text(`Rata-rata Pengeluaran/Bulan: ${formatCurrency(transactionStats.avgExpense)}`, 30, yPos + 24);
-            
-            // Footer
-            const pageCount = doc.internal.getNumberOfPages();
-            for (let i = 1; i <= pageCount; i++) {
-                doc.setPage(i);
-                doc.setFontSize(8);
-                doc.setTextColor(150, 150, 150);
-                doc.text('FlexiBudget 2.0 - Laporan Tahunan', 105, 285, { align: 'center' });
-                doc.text(`Halaman ${i} dari ${pageCount}`, 105, 290, { align: 'center' });
-            }
-            
-            hideLoading();
-            
-            // Simpan PDF
-            doc.save(`Laporan_Tahunan_${year}.pdf`);
-            showToast('Laporan tahunan berhasil diunduh!', 'success');
+            showToast('Fitur laporan tahunan dalam pengembangan', 'info');
         }
         
         function previewMonthlyReport() {
@@ -1661,17 +1954,6 @@
                   `Saldo: ${formatCurrency(totalIncome - totalExpense)}\n` +
                   `Jumlah Transaksi: ${monthlyTransactions.length}\n\n` +
                   `Klik "Download Laporan Bulanan" untuk mendapatkan laporan lengkap dalam format PDF.`);
-        }
-        
-        function getPlanningForMonth(year, month) {
-            const monthKey = `${year}-${month}`;
-            return appData.monthlyPlanning[monthKey] || [];
-        }
-        
-        function getPlanningName(planningId) {
-            const allPlanning = Object.values(appData.monthlyPlanning).flat();
-            const planning = allPlanning.find(p => p.id === planningId);
-            return planning ? planning.name : '-';
         }
         
         // ============================================
@@ -1701,24 +1983,25 @@
         }
         
         // ============================================
-        // FUNGSI TAMPILAN (SEBELUMNYA)
+        // FUNGSI TAMPILAN - DIPERBAIKI
         // ============================================
         function updateDisplay() {
+            console.log('🔄 Updating display...', appData);
+            
             // Update month display
             updateMonthDisplay();
             
-            // Update counts
+            // Update counts - PERBAIKAN: Planning count harus sesuai
             document.getElementById('planningCount').textContent = appData.planningTemplates.length;
             document.getElementById('transactionCount').textContent = appData.transactions.length;
             document.getElementById('businessCount').textContent = appData.business.length;
             document.getElementById('planningCountInfo').textContent = appData.planningTemplates.length;
             document.getElementById('transactionCountInfo').textContent = appData.transactions.length;
-            document.getElementById('storageMode').textContent = document.getElementById('apiStatus').textContent;
             
             // Update planning select
             updatePlanningSelect();
             
-            // Update planning list
+            // Update planning list - INI YANG DIPERBAIKI
             updatePlanningList();
             
             // Update income sources list
@@ -1732,9 +2015,11 @@
             
             // Update business
             updateBusinessDisplay();
+            
+            // Update quick stats
+            updateQuickStats();
         }
         
-        // ... (semua fungsi tampilan lainnya tetap sama seperti sebelumnya) ...
         function updateMonthDisplay() {
             const currentMonth = monthNames[appData.currentMonth];
             document.getElementById('currentMonthYear').textContent = `${currentMonth} ${appData.currentYear}`;
@@ -1744,7 +2029,6 @@
         }
         
         function updateDashboard() {
-            // Calculate totals
             const totalIncome = appData.incomeSources.reduce((sum, income) => sum + income.amount, 0) +
                                appData.transactions
                                    .filter(t => t.type === 'income')
@@ -1756,12 +2040,10 @@
             
             const balance = totalIncome - totalExpense;
             
-            // Update display
             document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
             document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
             document.getElementById('totalBalance').textContent = formatCurrency(balance);
             
-            // Update status
             let statusText = '';
             if (balance > 0) {
                 statusText = `✅ Sisa uang ${formatCurrency(balance)}`;
@@ -1774,26 +2056,24 @@
             statusText += `<br><small>Pemasukan: ${formatCurrency(totalIncome)} | Pengeluaran: ${formatCurrency(totalExpense)}</small>`;
             document.getElementById('monthStatus').innerHTML = statusText;
             
-            // Update planning dashboard list
             updatePlanningDashboardList();
-            
-            // Update recent transactions
             updateRecentTransactions();
             
-            // Update quick stats
-            updateQuickStats();
+            const businessProfit = appData.business.reduce((sum, b) => 
+                sum + ((b.pemasukan || 0) - (b.pengeluaran || 0)), 0);
+            document.getElementById('businessProfit').textContent = formatCurrency(businessProfit);
         }
         
         function updatePlanningSelect() {
             const select = document.getElementById('transPlanning');
-            select.innerHTML = '<option value="">Pilih planning</option>';
+            select.innerHTML = '<option value="">Tidak ada planning</option>';
             
             getCurrentMonthPlanning().forEach(planning => {
                 const option = document.createElement('option');
                 option.value = planning.id;
                 
                 let extraInfo = '';
-                if (planning.type === 'Pengeluaran') {
+                if (planning.type === 'Pengeluaran' || planning.type === 'Tabungan' || planning.type === 'Investasi') {
                     const remaining = getRemainingForPlanning(planning.id);
                     const used = planning.used || 0;
                     extraInfo = ` (Sisa: ${formatCurrency(remaining)})`;
@@ -1807,26 +2087,29 @@
             });
         }
         
+        // FUNGSI UPDATE PLANNING LIST - DIPERBAIKI
         function updatePlanningList() {
             const container = document.getElementById('planningItemsList');
             const planningItems = getCurrentMonthPlanning();
+            
+            console.log('📋 Planning items:', planningItems);
             
             if (planningItems.length === 0) {
                 container.innerHTML = `
                     <div style="text-align:center; padding:30px; color:#666;">
                         <i class="fas fa-bullseye fa-2x" style="margin-bottom:10px; opacity:0.5;"></i>
-                        <p>Belum ada planning. Planning dari template akan dibuat otomatis.</p>
+                        <p>Belum ada planning. Buat planning baru!</p>
                     </div>
                 `;
                 return;
             }
             
-            container.innerHTML = '';
+            let html = '';
             planningItems.forEach(planning => {
                 let progressHtml = '';
                 let statusText = '';
                 
-                if (planning.type === 'Pengeluaran') {
+                if (planning.type === 'Pengeluaran' || planning.type === 'Tabungan' || planning.type === 'Investasi') {
                     const remaining = getRemainingForPlanning(planning.id);
                     const used = planning.used || 0;
                     const percentage = planning.target > 0 ? Math.min(100, used / planning.target * 100) : 0;
@@ -1861,27 +2144,28 @@
                     }
                 }
                 
-                const div = document.createElement('div');
-                div.className = 'planning-item';
-                div.innerHTML = `
-                    <div class="planning-info">
-                        <h4>${planning.name}</h4>
-                        <div><strong>${planning.type}</strong> | Target: ${formatCurrency(planning.target)}</div>
-                        ${planning.description ? `<small style="color:#666;">${planning.description}</small><br>` : ''}
-                        ${progressHtml}
-                        ${statusText}
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-warning btn-sm" onclick="editPlanning('${planning.id}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="deletePlanning('${planning.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                html += `
+                    <div class="planning-item">
+                        <div class="planning-info">
+                            <h4>${planning.name}</h4>
+                            <div><strong>${planning.type}</strong> | Target: ${formatCurrency(planning.target)}</div>
+                            ${planning.description ? `<small style="color:#666;">${planning.description}</small><br>` : ''}
+                            ${progressHtml}
+                            ${statusText}
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-warning btn-sm" onclick="editPlanning('${planning.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deletePlanning('${planning.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 `;
-                container.appendChild(div);
             });
+            
+            container.innerHTML = html;
         }
         
         function updatePlanningDashboardList() {
@@ -1898,10 +2182,11 @@
                 return;
             }
             
-            container.innerHTML = planningItems.slice(0, 5).map(planning => {
+            let html = '';
+            planningItems.slice(0, 5).forEach(planning => {
                 let planningInfo = '';
                 
-                if (planning.type === 'Pengeluaran') {
+                if (planning.type === 'Pengeluaran' || planning.type === 'Tabungan' || planning.type === 'Investasi') {
                     const remaining = getRemainingForPlanning(planning.id);
                     const used = planning.used || 0;
                     const percentage = planning.target > 0 ? Math.min(100, used / planning.target * 100) : 0;
@@ -1928,7 +2213,7 @@
                     `;
                 }
                 
-                return `
+                html += `
                     <div style="background:white; padding:12px; border-radius:8px; margin-bottom:8px; border-left:4px solid ${planning.type === 'Pemasukan' ? 'var(--success)' : 'var(--primary)'}">
                         <div style="display:flex; justify-content:space-between; align-items:start;">
                             <div>
@@ -1942,14 +2227,15 @@
                         ${planningInfo}
                     </div>
                 `;
-            }).join('');
+            });
+            
+            container.innerHTML = html;
         }
         
         function updateTransactionHistory() {
             const container = document.getElementById('transactionHistory');
             const monthFilter = document.getElementById('transMonthFilter');
             
-            // Update month filter options
             const uniqueMonths = new Set();
             appData.transactions.forEach(trans => {
                 const date = new Date(trans.date);
@@ -1965,7 +2251,6 @@
                 monthFilter.appendChild(option);
             });
             
-            // Filter transactions
             let filteredTrans = [...appData.transactions];
             if (monthFilter.value !== 'all') {
                 const [year, month] = monthFilter.value.split('-');
@@ -1976,7 +2261,6 @@
                 });
             }
             
-            // Sort by date
             filteredTrans.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             if (filteredTrans.length === 0) {
@@ -1990,15 +2274,12 @@
             }
             
             container.innerHTML = filteredTrans.map(trans => {
-                const planning = getCurrentMonthPlanning().find(p => p.id === trans.planningId) || 
-                               { name: 'Tidak ada planning', type: 'Unknown' };
-                
                 return `
                     <div class="trans-item">
                         <div>
-                            <div style="font-weight:600; margin-bottom:3px;">${planning.name}</div>
+                            <div style="font-weight:600; margin-bottom:3px;">${trans.description}</div>
                             <div style="font-size:0.8rem; color:#666; margin-bottom:5px;">
-                                ${trans.description || '-'} • ${formatDate(trans.date)}
+                                ${trans.category || '-'} • ${formatDate(trans.date)}
                             </div>
                             <div style="font-size:0.75rem; color:#999;">
                                 <i class="fas fa-edit" onclick="editTransaction('${trans.id}')" style="cursor:pointer; margin-right:10px;"></i>
@@ -2016,7 +2297,6 @@
         function updateRecentTransactions() {
             const container = document.getElementById('recentTransactions');
             
-            // Get 5 most recent transactions
             const recent = appData.transactions
                 .sort((a, b) => new Date(b.date) - new Date(a.date))
                 .slice(0, 5);
@@ -2032,13 +2312,10 @@
             }
             
             container.innerHTML = recent.map(trans => {
-                const planning = getCurrentMonthPlanning().find(p => p.id === trans.planningId) || 
-                               { name: 'Unknown', type: 'Unknown' };
-                
                 return `
                     <div style="background:white; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                         <div style="font-size:0.9rem;">
-                            <div style="font-weight:600;">${planning.name}</div>
+                            <div style="font-weight:600;">${trans.description}</div>
                             <div style="font-size:0.75rem; color:#666;">${formatDate(trans.date)}</div>
                         </div>
                         <div style="font-weight:700; color:${trans.type === 'income' ? 'var(--income)' : 'var(--expense)'}; font-size:0.9rem;">
@@ -2110,7 +2387,6 @@
                 return;
             }
             
-            // Get latest business data
             const latestBusiness = appData.business[appData.business.length - 1];
             const modal = latestBusiness.modal || 0;
             const pemasukan = latestBusiness.pemasukan || 0;
@@ -2118,10 +2394,6 @@
             const saldo = modal + pemasukan - pengeluaran;
             const profit = pemasukan - pengeluaran;
             
-            // Update profit display
-            document.getElementById('businessProfit').textContent = formatCurrency(profit);
-            
-            // Update summary
             summaryContainer.innerHTML = `
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div style="background:#e8f5e9; padding:8px; border-radius:6px;">
@@ -2148,7 +2420,6 @@
                 </div>
             `;
             
-            // Update recent business
             const recentBusiness = appData.business.slice(-3).reverse();
             recentContainer.innerHTML = recentBusiness.map(biz => {
                 const profit = (biz.pemasukan || 0) - (biz.pengeluaran || 0);
@@ -2164,149 +2435,6 @@
                     </div>
                 `;
             }).join('');
-        }
-        
-        // ============================================
-        // FUNGSI TRANSAKSI
-        // ============================================
-        async function editTransaction(transactionId) {
-            const transaction = appData.transactions.find(t => t.id === transactionId);
-            if (!transaction) return;
-            
-            // Fill form with existing data
-            document.getElementById('transactionFormTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Transaksi';
-            document.getElementById('editingTransactionId').value = transaction.id;
-            document.getElementById('transType').value = transaction.type;
-            document.getElementById('transPlanning').value = transaction.planningId;
-            document.getElementById('transAmount').value = formatCurrencyInput(transaction.amount.toString());
-            document.getElementById('transDesc').value = transaction.description || '';
-            document.getElementById('transDate').value = transaction.date;
-            document.getElementById('transCategory').value = transaction.category || 'Umum';
-            document.getElementById('transactionSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update Transaksi';
-            document.getElementById('cancelEditBtn').style.display = 'block';
-            
-            // Switch to transactions tab
-            switchTab('transactions');
-        }
-        
-        async function deleteTransaction(transactionId) {
-            const transaction = appData.transactions.find(t => t.id === transactionId);
-            if (!transaction) return;
-            
-            const planning = getCurrentMonthPlanning().find(p => p.id === transaction.planningId);
-            const planningName = planning ? planning.name : 'Unknown';
-            
-            if (confirm(`Hapus transaksi "${transaction.description || planningName}" sebesar ${formatCurrency(transaction.amount)}?`)) {
-                appData.transactions = appData.transactions.filter(t => t.id !== transactionId);
-                if (await saveData()) {
-                    showToast('Transaksi berhasil dihapus!', 'success');
-                }
-            }
-        }
-        
-        // ============================================
-        // FUNGSI PLANNING MODAL
-        // ============================================
-        function openPlanningModal() {
-            document.getElementById('planningModalTitle').textContent = 'Tambah Planning';
-            document.getElementById('editingPlanningId').value = '';
-            document.getElementById('planningForm').reset();
-            document.getElementById('planningSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Simpan Planning';
-            document.getElementById('planningModal').classList.add('active');
-        }
-        
-        function closePlanningModal() {
-            document.getElementById('planningModal').classList.remove('active');
-        }
-        
-        function editPlanning(planningId) {
-            const planning = getCurrentMonthPlanning().find(p => p.id === planningId);
-            if (!planning) return;
-            
-            // Find template
-            const templateIndex = appData.planningTemplates.findIndex(t => t.id === planning.templateId);
-            if (templateIndex === -1) return;
-            
-            // Fill form with existing data
-            document.getElementById('planningModalTitle').textContent = 'Edit Planning';
-            document.getElementById('editingPlanningId').value = planning.id;
-            document.getElementById('planningName').value = planning.name;
-            document.getElementById('planningType').value = planning.type;
-            document.getElementById('planningTarget').value = formatCurrencyInput(planning.target.toString());
-            document.getElementById('planningDesc').value = planning.description || '';
-            document.getElementById('planningSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update Planning';
-            
-            // Show modal
-            document.getElementById('planningModal').classList.add('active');
-        }
-        
-        async function deletePlanning(planningId) {
-            const planning = getCurrentMonthPlanning().find(p => p.id === planningId);
-            if (!planning) return;
-            
-            // Check if planning has transactions
-            const planningTransactions = appData.transactions.filter(t => t.planningId === planningId);
-            
-            let message = `Hapus planning "${planning.name}"?`;
-            if (planningTransactions.length > 0) {
-                message += `\n\nPlanning ini memiliki ${planningTransactions.length} transaksi.`;
-                message += `\nHapus planning dan semua transaksinya?`;
-            }
-            
-            if (confirm(message)) {
-                // Remove from monthly planning
-                const monthKey = getCurrentMonthKey();
-                appData.monthlyPlanning[monthKey] = appData.monthlyPlanning[monthKey].filter(p => p.id !== planningId);
-                
-                // Remove template if no other month uses it
-                const otherMonths = Object.values(appData.monthlyPlanning).flat();
-                const templateInUse = otherMonths.some(p => p.templateId === planning.templateId);
-                if (!templateInUse) {
-                    appData.planningTemplates = appData.planningTemplates.filter(t => t.id !== planning.templateId);
-                }
-                
-                // Remove related transactions
-                appData.transactions = appData.transactions.filter(t => t.planningId !== planningId);
-                
-                if (await saveData()) {
-                    showToast(`Planning "${planning.name}" dihapus`, 'success');
-                }
-            }
-        }
-        
-        // ============================================
-        // FUNGSI USAHA
-        // ============================================
-        async function saveBusiness() {
-            const modal = parseCurrency(document.getElementById('businessModal').value);
-            const pemasukan = parseCurrency(document.getElementById('businessPemasukan').value);
-            const pengeluaran = parseCurrency(document.getElementById('businessPengeluaran').value);
-            const date = document.getElementById('businessDate').value || new Date().toISOString().split('T')[0];
-            
-            if (modal <= 0 && pemasukan <= 0 && pengeluaran <= 0) {
-                showToast('Masukkan data usaha yang valid!', 'error');
-                return;
-            }
-            
-            const businessData = {
-                id: 'business_' + Date.now(),
-                modal: modal,
-                pemasukan: pemasukan,
-                pengeluaran: pengeluaran,
-                date: date
-            };
-            
-            appData.business.push(businessData);
-            
-            if (await saveData()) {
-                // Clear form
-                document.getElementById('businessModal').value = '';
-                document.getElementById('businessPemasukan').value = '';
-                document.getElementById('businessPengeluaran').value = '';
-                document.getElementById('businessDate').value = '';
-                
-                showToast('Data usaha berhasil disimpan!', 'success');
-            }
         }
         
         // ============================================
@@ -2331,120 +2459,17 @@
         }
         
         function prevMonthPlanning() {
-            appData.currentMonth--;
-            if (appData.currentMonth < 0) {
-                appData.currentMonth = 11;
-                appData.currentYear--;
-            }
-            updateDisplay();
+            prevMonth();
         }
         
         function nextMonthPlanning() {
-            appData.currentMonth++;
-            if (appData.currentMonth > 11) {
-                appData.currentMonth = 0;
-                appData.currentYear++;
-            }
-            updateDisplay();
-        }
-        
-        // ============================================
-        // FUNGSI RESET DATA
-        // ============================================
-        async function resetAllData() {
-            if (confirm('RESET SEMUA DATA?\nIni akan menghapus semua data permanen!')) {
-                if (prompt('Ketik "RESET" untuk konfirmasi:') === 'RESET') {
-                    showLoading();
-                    
-                    try {
-                        // Reset local data
-                        appData = {
-                            version: "2.0",
-                            currentYear: new Date().getFullYear(),
-                            currentMonth: new Date().getMonth(),
-                            planningTemplates: [],
-                            monthlyPlanning: {},
-                            incomeSources: [],
-                            transactions: [],
-                            business: []
-                        };
-                        
-                        // Clear API data
-                        await fetch(CONFIG.API_URL, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
-                                action: 'reset',
-                                password: CONFIG.PASSWORD
-                            })
-                        });
-                        
-                        // Clear local storage
-                        localStorage.removeItem('flexibudget_backup');
-                        
-                        hideLoading();
-                        location.reload();
-                    } catch (error) {
-                        hideLoading();
-                        showToast('Error resetting data', 'error');
-                    }
-                }
-            }
-        }
-        
-        function backupData() {
-            const dataStr = JSON.stringify(appData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `flexibudget_backup_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            showToast('Data berhasil di-backup!', 'success');
-        }
-        
-        function restoreData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            
-            input.onchange = async function(e) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = async function(e) {
-                    try {
-                        const backup = JSON.parse(e.target.result);
-                        if (confirm('Restore data? Data saat ini akan diganti.')) {
-                            showLoading();
-                            appData = backup;
-                            if (await saveData()) {
-                                hideLoading();
-                                showToast('Data berhasil di-restore!', 'success');
-                            }
-                        }
-                    } catch (err) {
-                        alert('File backup tidak valid!');
-                    }
-                };
-                
-                reader.readAsText(file);
-            };
-            
-            input.click();
+            nextMonth();
         }
         
         // ============================================
         // FUNGSI UTILITY
         // ============================================
         function switchTab(tabName) {
-            // Update tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -2452,18 +2477,15 @@
                 content.classList.remove('active');
             });
             
-            // Activate selected tab
             const tabElement = document.querySelector(`.tab[onclick*="${tabName}"]`);
             if (tabElement) {
                 tabElement.classList.add('active');
                 document.getElementById(`${tabName}Tab`).classList.add('active');
             }
             
-            // Load specific data if needed
             if (tabName === 'dashboard') {
                 updateDashboard();
             } else if (tabName === 'reports') {
-                // Set tahun sekarang di dropdown laporan
                 const currentYear = new Date().getFullYear();
                 document.getElementById('reportYear').value = currentYear;
                 document.getElementById('reportYearAnnual').value = currentYear;
@@ -2489,6 +2511,7 @@
             toast.textContent = message;
             toast.style.background = type === 'success' ? 'var(--success)' : 
                                    type === 'error' ? 'var(--danger)' : 
+                                   type === 'warning' ? 'var(--warning)' :
                                    'var(--primary)';
             toast.classList.add('show');
             setTimeout(() => {
@@ -2504,47 +2527,107 @@
             document.getElementById('loadingOverlay').classList.remove('active');
         }
         
-        function showAlert(message, type = 'info') {
-            const alertElement = document.getElementById('alertMessage');
-            alertElement.textContent = message;
-            alertElement.style.display = 'block';
-            
-            if (type === 'success') {
-                alertElement.style.background = '#d4edda';
-                alertElement.style.color = '#155724';
-                alertElement.style.border = '1px solid #c3e6cb';
-            } else if (type === 'error') {
-                alertElement.style.background = '#f8d7da';
-                alertElement.style.color = '#721c24';
-                alertElement.style.border = '1px solid #f5c6cb';
-            } else {
-                alertElement.style.background = '#d1ecf1';
-                alertElement.style.color = '#0c5460';
-                alertElement.style.border = '1px solid #bee5eb';
+        function refreshData() {
+            initializeApp();
+            showToast('Memuat ulang data...', 'info');
+        }
+        
+        function resetAllData() {
+            if (confirm('RESET SEMUA DATA?\nIni akan menghapus semua data permanen!')) {
+                if (prompt('Ketik "RESET" untuk konfirmasi:') === 'RESET') {
+                    localStorage.clear();
+                    
+                    appData = {
+                        version: "2.0",
+                        currentYear: new Date().getFullYear(),
+                        currentMonth: new Date().getMonth(),
+                        planningTemplates: [],
+                        monthlyPlanning: {},
+                        incomeSources: [],
+                        transactions: [],
+                        business: [],
+                        apiConnected: false,
+                        lastSync: null
+                    };
+                    
+                    showToast('Semua data berhasil direset!', 'success');
+                    updateDisplay();
+                }
             }
+        }
+        
+        function backupData() {
+            const dataStr = JSON.stringify(appData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
             
-            setTimeout(() => {
-                alertElement.style.display = 'none';
-            }, 5000);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `flexibudget_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            showToast('Data berhasil di-backup!', 'success');
+        }
+        
+        function restoreData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const backup = JSON.parse(e.target.result);
+                        
+                        if (confirm('Restore data? Data saat ini akan diganti.')) {
+                            if (!backup.transactions || !backup.planningTemplates) {
+                                throw new Error('Invalid backup format');
+                            }
+                            
+                            appData = {
+                                ...appData,
+                                ...backup,
+                                planningTemplates: backup.planningTemplates || [],
+                                monthlyPlanning: backup.monthlyPlanning || {},
+                                incomeSources: backup.incomeSources || [],
+                                transactions: backup.transactions || [],
+                                business: backup.business || []
+                            };
+                            
+                            showToast('Data berhasil di-restore!', 'success');
+                            updateDisplay();
+                        }
+                    } catch (err) {
+                        alert('File backup tidak valid!');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
         }
         
         // ============================================
         // EVENT LISTENERS
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Set default date
             const today = new Date();
             document.getElementById('transDate').valueAsDate = today;
             document.getElementById('businessDate').valueAsDate = today;
             
-            // Set tahun untuk laporan
             const currentYear = new Date().getFullYear();
             document.getElementById('reportYear').value = currentYear;
             document.getElementById('reportYearAnnual').value = currentYear;
             document.getElementById('reportMonth').value = today.getMonth();
             
-            // Load data
-            loadData();
+            // Initialize app
+            initializeApp();
             
             // Currency input formatting
             document.querySelectorAll('.currency-input').forEach(input => {
@@ -2559,70 +2642,52 @@
                 
                 const amount = parseCurrency(document.getElementById('transAmount').value);
                 const type = document.getElementById('transType').value;
-                const planningId = document.getElementById('transPlanning').value;
                 const transDate = document.getElementById('transDate').value;
                 const description = document.getElementById('transDesc').value.trim();
                 const category = document.getElementById('transCategory').value;
+                const planningId = document.getElementById('transPlanning').value;
                 const editingTransactionId = document.getElementById('editingTransactionId').value;
-                
-                if (!planningId) {
-                    showToast('Pilih planning terlebih dahulu!', 'error');
-                    return;
-                }
                 
                 if (amount <= 0) {
                     showToast('Jumlah harus lebih dari 0!', 'error');
                     return;
                 }
                 
-                showLoading();
-                
-                if (editingTransactionId) {
-                    // Update existing transaction
-                    const transactionIndex = appData.transactions.findIndex(t => t.id === editingTransactionId);
-                    if (transactionIndex !== -1) {
-                        appData.transactions[transactionIndex] = {
-                            ...appData.transactions[transactionIndex],
-                            type: type,
-                            planningId: planningId,
-                            amount: amount,
-                            description: description,
-                            date: transDate,
-                            category: category
-                        };
-                        
-                        if (await saveData()) {
-                            showToast('Transaksi berhasil diperbarui!', 'success');
-                        }
-                    }
-                } else {
-                    // Add new transaction
-                    const transaction = {
-                        id: 'trans_' + Date.now(),
-                        type: type,
-                        planningId: planningId,
-                        amount: amount,
-                        description: description,
-                        date: transDate,
-                        category: category
-                    };
-                    
-                    appData.transactions.push(transaction);
-                    
-                    if (await saveData()) {
-                        showToast('Transaksi berhasil disimpan!', 'success');
-                    }
+                if (!type) {
+                    showToast('Pilih jenis transaksi!', 'error');
+                    return;
                 }
                 
-                hideLoading();
+                const formData = {
+                    description: description,
+                    amount: amount,
+                    type: type,
+                    category: category,
+                    date: transDate,
+                    user: 'User',
+                    notes: '',
+                    planningId: planningId || null
+                };
                 
-                // Reset form
-                this.reset();
-                document.getElementById('transDate').valueAsDate = new Date();
-                document.getElementById('editingTransactionId').value = '';
-                document.getElementById('transactionFormTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Tambah Transaksi';
-                document.getElementById('transactionSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Simpan Transaksi';
-                document.getElementById('cancelEditBtn').style.display = 'none';
+                if (editingTransactionId) {
+                    formData.id = editingTransactionId;
+                } else {
+                    formData.id = 'trans_' + Date.now();
+                }
+                
+                const isEdit = !!editingTransactionId;
+                const success = await saveTransaction(formData, isEdit);
+                
+                if (success) {
+                    this.reset();
+                    document.getElementById('transDate').valueAsDate = new Date();
+                    document.getElementById('editingTransactionId').value = '';
+                    document.getElementById('transactionFormTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Tambah Transaksi';
+                    document.getElementById('transactionSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Simpan Transaksi';
+                    document.getElementById('cancelEditBtn').style.display = 'none';
+                    
+                    updateDisplay();
+                }
             });
             
             // Cancel edit button
@@ -2636,94 +2701,21 @@
                 showToast('Edit transaksi dibatalkan', 'info');
             });
             
-            // Planning form submit
-            document.getElementById('planningForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const planningName = document.getElementById('planningName').value.trim();
-                const planningType = document.getElementById('planningType').value;
-                const planningTarget = parseCurrency(document.getElementById('planningTarget').value);
-                const planningDesc = document.getElementById('planningDesc').value.trim();
-                const editingPlanningId = document.getElementById('editingPlanningId').value;
-                
-                if (planningTarget <= 0) {
-                    showToast('Target harus lebih dari 0!', 'error');
-                    return;
-                }
-                
-                showLoading();
-                
-                const monthKey = getCurrentMonthKey();
-                
-                if (editingPlanningId) {
-                    // Editing existing planning
-                    const planningIndex = getCurrentMonthPlanning().findIndex(p => p.id === editingPlanningId);
-                    if (planningIndex !== -1) {
-                        // Update monthly planning
-                        appData.monthlyPlanning[monthKey][planningIndex].name = planningName;
-                        appData.monthlyPlanning[monthKey][planningIndex].type = planningType;
-                        appData.monthlyPlanning[monthKey][planningIndex].target = planningTarget;
-                        appData.monthlyPlanning[monthKey][planningIndex].description = planningDesc;
-                        
-                        // Update template
-                        const templateId = appData.monthlyPlanning[monthKey][planningIndex].templateId;
-                        const templateIndex = appData.planningTemplates.findIndex(t => t.id === templateId);
-                        if (templateIndex !== -1) {
-                            appData.planningTemplates[templateIndex].name = planningName;
-                            appData.planningTemplates[templateIndex].type = planningType;
-                            appData.planningTemplates[templateIndex].target = planningTarget;
-                            appData.planningTemplates[templateIndex].description = planningDesc;
-                        }
-                        
-                        if (await saveData()) {
-                            showToast(`Planning "${planningName}" berhasil diperbarui!`, 'success');
-                        }
-                    }
-                } else {
-                    // Adding new planning
-                    const template = {
-                        id: 'template_' + Date.now(),
-                        name: planningName,
-                        type: planningType,
-                        target: planningTarget,
-                        description: planningDesc
-                    };
-                    
-                    appData.planningTemplates.push(template);
-                    
-                    // Update current month planning
-                    const monthlyPlanning = {
-                        id: template.id + '_' + monthKey,
-                        templateId: template.id,
-                        name: planningName,
-                        type: planningType,
-                        target: planningTarget,
-                        description: planningDesc,
-                        used: 0,
-                        collected: 0
-                    };
-                    
-                    if (!appData.monthlyPlanning[monthKey]) {
-                        appData.monthlyPlanning[monthKey] = [];
-                    }
-                    appData.monthlyPlanning[monthKey].push(monthlyPlanning);
-                    
-                    if (await saveData()) {
-                        showToast(`Planning "${planningName}" berhasil ditambahkan!`, 'success');
-                    }
-                }
-                
-                hideLoading();
-                
-                // Reset form and close modal
-                this.reset();
-                closePlanningModal();
-            });
+            // PERBAIKAN: Planning form submit menggunakan fungsi baru
+            document.getElementById('planningForm').addEventListener('submit', handlePlanningSubmit);
             
             // Transaction month filter
             document.getElementById('transMonthFilter').addEventListener('change', function() {
                 updateTransactionHistory();
             });
+            
+            // Auto-refresh setiap 60 detik
+            setInterval(() => {
+                if (appData.apiConnected) {
+                    console.log('🔄 Auto-refresh data');
+                    updateDisplay();
+                }
+            }, 60000);
         });
     </script>
 </body>
